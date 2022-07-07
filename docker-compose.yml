@@ -1,0 +1,36 @@
+version: '3.1'
+
+volumes:
+  pgdata:
+  portainerdb:
+
+services:
+
+  db:
+    image: postgres:latest
+    restart: always
+    container_name: tools-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=books
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  portainer:
+    image: portainer/portainer:latest
+    restart: always
+    volumes: 
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainerdb:/data
+    ports:
+      - "9000:9000"
+    container_name: portainer
